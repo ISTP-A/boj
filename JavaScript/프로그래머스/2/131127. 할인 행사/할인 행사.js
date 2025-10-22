@@ -1,44 +1,36 @@
-
 function solution(want, number, discount) {
-  const size = 10
+    const size = 10
+    const need = new Map()
+    
+    for (let i = 0; i < want.length; i++) {
+        need.set(want[i], number[i])
+    }
 
-  const need = Object.fromEntries(want.map((k, i) => [k, number[i]]))
-  const counter = createCounter(want)
-  const total = want.length
+    let remaining = number.reduce((a, b) => a + b, 0)
+    const have = new Map()
 
-  let matched = 0
-  let result = 0
+    const add = (item, delta) => {
+        if (!need.has(item)) return
 
-  const adjust = (item, delta) => {
-    if (!counter.has(item)) return
+        const beforeNeed = need.get(item)
+        const curHave = (have.get(item) || 0) + delta
+        have.set(item, curHave)
 
-    const before = counter.data[item] === need[item]
-    counter.add(item, delta)
-    const after = counter.data[item] === need[item]
+        if (delta === +1) {
+            if (curHave <= beforeNeed) remaining--
+        } else {
+            if (curHave < beforeNeed) remaining++
+        }
+    }
 
-    if (!before && after) matched++
-    else if (before && !after) matched--
-  }
+    for (let i = 0; i < size; i++) add(discount[i], +1)
+    let result = remaining === 0 ? 1 : 0
 
-  for (let i = 0; i < size && i < discount.length; i++) {
-    adjust(discount[i], +1)
-  }
+    for (let i = size; i < discount.length; i++) {
+        add(discount[i - size], -1)
+        add(discount[i], +1)
+        if (remaining === 0) result++
+    }
 
-  if (matched === total) result++
-
-  for (let i = size; i < discount.length; i++) {
-    adjust(discount[i - size], -1)
-    adjust(discount[i], +1)
-    if (matched === total) result++
-  }
-
-  return result
-}
-
-function createCounter(targets, initial = 0) {
-  const data = Object.fromEntries(targets.map(k => [k, initial]))
-  const has = (k) => Object.prototype.hasOwnProperty.call(data, k)
-  const add = (k, v = 1) => { if (has(k)) data[k] += v }
-  const reset = () => { for (const k in data) data[k] = initial }
-  return { data, has, add, reset }
+    return result
 }
