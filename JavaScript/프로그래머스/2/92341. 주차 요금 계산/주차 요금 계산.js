@@ -1,19 +1,3 @@
-function toMinute(time) {
-    const [h, m] = time.split(':').map(Number)
-    return h * 60 + m
-}
-
-function calcCharge(fees, duration) {
-    const [dtime, dfee, atime, afee] = fees
-    let charge = dfee
-    
-    if(duration > dtime) {
-        charge += Math.ceil((duration - dtime) / atime) * afee
-    }
-    
-    return charge
-}
-
 function solution(fees, records) {
     const map = {}
     const durations = {}
@@ -40,4 +24,20 @@ function solution(fees, records) {
     return Object.entries(durations)
         .sort((a, b) => Number(a[0]) - Number(b[0]))
         .map(([_, duration]) => calcCharge(fees, duration))
+}
+
+function toMinute(time) {
+    const [h, m] = time.split(':').map(Number)
+    return h * 60 + m
+}
+
+function calcCharge(fees, duration) {
+    const [dtime, dfee, atime, afee] = fees
+    let charge = dfee
+    
+    if(duration > dtime) {
+        charge += Math.ceil((duration - dtime) / atime) * afee
+    }
+    
+    return charge
 }
