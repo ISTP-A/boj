@@ -13,9 +13,9 @@ function solution(maps) {
     const visited = maps.map(inner => [...inner])
     
     const queue = [[0, 0, 1]]
-    let pointer = 0
-    while(pointer < queue.length) {
-        const [x, y, count] = queue[pointer++]
+    
+    while(0 < queue.length) {
+        const [x, y, count] = queue.shift()
         
         if(destX === x && destY === y) return count
         
