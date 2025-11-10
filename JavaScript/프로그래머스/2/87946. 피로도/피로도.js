@@ -3,26 +3,23 @@ function canExplore(fatigue, minFatigue, consumption) {
 }
 
 function solution(k, dungeons) {
-    const exploreCounts = []
+    let maxCount = 0
+    const visited = Array(dungeons.length).fill(false)
     
-    function bfs(fatigue, dungeonIndex, visited, count = 1) {
-        visited[dungeonIndex] = true
-        fatigue -= dungeons[dungeonIndex][1]
+    function backtrack(fatigue, count = 1) {
+         maxCount = Math.max(maxCount, count)
 
         for (let i = 0; i < dungeons.length; i++) {
-            const dungeon = dungeons[i]
-            if (visited[i] || !canExplore(fatigue, ...dungeon)) continue;
-            bfs(fatigue, i, [...visited], count + 1)
+            const [minFatigue, consumption] = dungeons[i]
+            if (visited[i] || !canExplore(fatigue, minFatigue, consumption)) continue
+            
+            visited[i] = true
+            backtrack(fatigue - consumption, count + 1)
+            visited[i] = false
         }
-
-        exploreCounts.push(count)
     }
 
-    const visited = Array.from({ length: dungeons.length }, () => false)
-
-    for (let i = 0; i < dungeons.length; i++) {
-        bfs(k, i, [...visited], 1)
-    }
-
-    return Math.max(...exploreCounts)
+    backtrack(k, 0)
+    
+    return maxCount
 }
