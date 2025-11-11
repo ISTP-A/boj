@@ -1,30 +1,37 @@
 class Counter {
-    map = undefined
-
+    map = new Map()
+    size = 0
+    
     constructor(initial = []) {
-        this.map = new Map()
         initial.forEach((num) => this.append(num))
+        this.size = this.map.size
     }
 
     append(number) {
-        if (this.map.has(number)) this.map.set(number, this.map.get(number) + 1)
-        else this.map.set(number, 1)
-
-        return this
+        if(this.map.has(number)) {
+            this.map.set(number, this.map.get(number) + 1)
+        }
+        else {
+            this.map.set(number, 1)
+            this.size++
+        }
     }
 
     pop(number) {
-        if (!this.map.has(number)) return null
-
         const value = this.map.get(number) - 1
-        if (value > 0) this.map.set(number, value)
-        else this.map.delete(number)
-
-        return this
+        if (value > 0) {
+            this.map.set(number, value)
+        }
+        else {
+            this.map.delete(number)
+            this.size--
+        }
+        
+        return number
     }
-
-    size() {
-        return this.map.size
+    
+    getSize() {
+        return this.size
     }
 }
 
@@ -38,11 +45,9 @@ function solution(topping) {
     const a = new Counter()
     const b = new Counter(topping)
 
-    for (let i = 0; i < topping.length; i++) {
-        a.append(topping[i])
-        b.pop(topping[i])
-
-        if (a.size() === b.size()) answer++
+    for (let i = 0; i < topping.length - 1; i++) {
+        a.append(b.pop(topping[i]))
+        if (a.getSize() === b.getSize()) answer++
     }
 
     return answer
