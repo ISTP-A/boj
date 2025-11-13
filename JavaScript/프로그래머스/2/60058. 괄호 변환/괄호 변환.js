@@ -39,19 +39,19 @@ const cutParentheses = (p) => {
     return [p, ""]
 }
 
-const tmp = (w) => {
+const normalization = (w) => {
     if(isEmpty(w)) return ""
     
     const [u, v] = cutParentheses(w)
-    if(isCorrect(u)) return u + tmp(v)
+    if(isCorrect(u)) return u + normalization(v)
     
-    let str = "(" + tmp(v) + ")"
+    let str = "(" + normalization(v) + ")"
     str += reversal(u.slice(1, u.length-1))
     return str
 }
 
 function solution(p) {
     if(isCorrect(p)) return p
-    return tmp(p)
+    return normalization(p)
 }
 

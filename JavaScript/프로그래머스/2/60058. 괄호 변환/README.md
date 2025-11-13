@@ -1,10 +1,10 @@
 # [level 2] 괄호 변환 - 60058 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/60058) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/60058#qna) 
 
 ### 성능 요약
 
-메모리: 36 MB, 시간: 29.12 ms
+메모리: 36.5 MB, 시간: 5.47 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2025년 11월 13일 10:10:39
+2025년 11월 13일 10:17:25
 
 ### 문제 설명
 
