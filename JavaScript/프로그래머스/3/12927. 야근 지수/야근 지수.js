@@ -1,82 +1,72 @@
 class MaxHeap {
-    heap = [0]
+  constructor() {
+    this.heap = []
+  }
 
-    append(value) {
-        this.heap.push(value)
+  push(value) {
+    this.heap.push(value)
+    this.bubbleUp()
+  }
 
-        let current = this.size() - 1
-        let parent = (current / 2) >> 0
+  pop() {
+    if (this.heap.length === 1) return this.heap.pop()
 
-        while (current > 1 && this.isGreater(current, parent)) {
-            this.swap(current, parent)
-            current = parent
-            parent = (current / 2) >> 0
-        }
+    const max = this.heap[0]
+    this.heap[0] = this.heap.pop()
+    this.bubbleDown()
+    return max
+  }
+
+  bubbleUp() {
+    let index = this.heap.length - 1
+
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2)
+
+      if (this.heap[parentIndex] >= this.heap[index]) break
+
+      [this.heap[parentIndex], this.heap[index]] =
+        [this.heap[index], this.heap[parentIndex]]
+
+      index = parentIndex
     }
+  }
 
-    pop() {
-        if (this.isEmpty()) return undefined
+  bubbleDown() {
+    let index = 0
+    const length = this.heap.length
 
-        const min = this.get(1)
-        this.heap[1] = this.heap.pop()
+    while (true) {
+      let left = index * 2 + 1
+      let right = index * 2 + 2
+      let largest = index
 
-        if (this.isEmpty()) return min
+      if (left < length && this.heap[left] > this.heap[largest]) {
+        largest = left
+      }
 
-        let current = 1
-        while (this.isValidIndex(current)) {
-            const left = current * 2
-            const right = current * 2 + 1
-            let biggest = current
+      if (right < length && this.heap[right] > this.heap[largest]) {
+        largest = right
+      }
 
-            if (this.isValidIndex(left) && this.isGreater(left, biggest)) biggest = left
-            if (this.isValidIndex(right) && this.isGreater(right, biggest)) biggest = right
-            if (biggest === current) break
+      if (largest === index) break
 
-            this.swap(current, biggest)
-            current = biggest
-        }
+      [this.heap[index], this.heap[largest]] = [this.heap[largest], this.heap[index]]
 
-        return min
+      index = largest
     }
-
-    peek() {
-        return this.get(1)
-    }
-
-    size() {
-        return this.heap.length
-    }
-
-    swap(t1, t2) {
-        [this.heap[t1], this.heap[t2]] = [this.heap[t2], this.heap[t1]]
-    }
-
-    isGreater(target1, target2) {
-        return this.get(target1) > this.get(target2)
-    }
-
-    isEmpty() {
-        return this.heap.length === 1
-    }
-
-    isValidIndex(index) {
-        return 0 < index && index < this.heap.length
-    }
-
-    get(index) {
-        return this.heap[index]
-    }
+  }
 }
 
 function solution(n, works) {
   const maxHeap = new MaxHeap()
 
-  works.forEach(w => maxHeap.append(w))
+  works.forEach(w => maxHeap.push(w))
 
   while (n > 0) {
     let max = maxHeap.pop()
     if (max === 0) return 0
-    maxHeap.append(max - 1)
+    maxHeap.push(max - 1)
     n--
   }
 
