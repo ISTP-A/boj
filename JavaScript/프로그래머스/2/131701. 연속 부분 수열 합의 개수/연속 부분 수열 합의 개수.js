@@ -1,15 +1,19 @@
 function solution(elements) {
-    var answer = 0;
-    const hash = new Set()
-    const arr = [...elements, ...elements]
+    const n = elements.length
+    const arr = elements.concat(elements)
+    const prefix = Array(arr.length + 1).fill(0)
     
-    const len = elements.length
+    for(let i = 0; i < arr.length; i++) {
+        prefix[i + 1] = arr[i] + prefix[i]
+    }
     
-    for(let i = 0; i < len; i++) {
-        for(let j = 0; j <= len; j++) {
-            const sum =  arr.slice(j, j + i).reduce((acc, cur) => acc + cur, 0)
-            hash.add(sum)
+    const sums = new Set()
+    for (let len = 1; len <= n; len++) {
+        for (let start = 0; start < n; start++) {
+            const sum = prefix[start + len] - prefix[start]
+            sums.add(sum)
         }
     }
-    return hash.size
+
+    return sums.size
 }
