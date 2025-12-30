@@ -1,76 +1,97 @@
-const DELETE_MARK = '#'
 const NULL_VALUE = '@'
 
-function can_remove(board, x, y) {
-    return board[y][x] !== NULL_VALUE &&
-        board[y][x] === board[y+1][x+1] &&
-        board[y][x] === board[y+1][x] &&
-        board[y][x]=== board[y][x+1]
-}
+const idx = (y, x, width) => y * width + x
 
-function mark(board, x, y) {
-    board[y][x] = DELETE_MARK
-    board[y+1][x+1] = DELETE_MARK
-    board[y+1][x] = DELETE_MARK
-    board[y][x+1] = DELETE_MARK
-}
+function rotateBoard(boardRows) {
+  const m = boardRows.length
+  const n = boardRows[0].length
+  const rotated = Array.from({ length: n }, () => Array(m))
 
-function scan_board_and_marking(board) {
-    let deletable = false
-    const result = Array.from({ length: board.length }, () => Array(board[0].length).fill('0'))
-    
-    for(let y = 0; y < board.length-1; y++) {
-        for(let x = 0; x < board[0].length-1; x++) {
-            if(can_remove(board,x, y)) {
-                mark(result, x, y)
-                deletable = true
-            }
-        }
+  for (let col = 0; col < n; col++) {
+    let k = 0
+    for (let row = m - 1; row >= 0; row--) {
+      rotated[col][k++] = boardRows[row].charAt(col)
     }
-    
-    return { result, deletable }
+  }
+  return rotated
 }
 
-function remove(board, scaned) {
-    const new_board = []
-    for(let i = 0; i < board.length; i++) {
-        const line = Array(board[0].length).fill(NULL_VALUE)
-        let pos = 0
-        for(let j = 0; j < board[0].length; j++) {
-            if(scaned[i][j] !== DELETE_MARK) line[pos++] = board[i][j]
-        }
-        new_board.push(line)
+function scanDeletions(board) {
+  const H = board.length
+  const W = board[0].length
+
+  const marks = new Uint8Array(H * W)
+  let removedCount = 0
+
+  const mark = (i) => {
+    if (marks[i] === 0) {
+      marks[i] = 1
+      removedCount++
     }
-    
-    return new_board
+  };
+
+  for (let y = 0; y < H - 1; y++) {
+    const row = board[y]
+    const rowDown = board[y + 1]
+    const base = y * W
+
+    for (let x = 0; x < W - 1; x++) {
+      const v = row[x]
+      if (v === NULL_VALUE) continue
+
+      if (v === row[x + 1] && v === rowDown[x] && v === rowDown[x + 1]) {
+        mark(base + x)
+        mark(base + x + 1)
+        mark(base + W + x)
+        mark(base + W + x + 1)
+      }
+    }
+  }
+
+  return { marks, removedCount }
 }
 
-function rotate_board(board) {
-    const new_board = []
-    for(let j = 0; j < board[0].length; j++) {
-        const line = []
-        for(let i = board.length - 1; i >= 0; i--) line.push(board[i][j])
-        new_board.push(line)
+function applyGravity(board, marks) {
+  const H = board.length
+  const W = board[0].length
+
+  return board.map((row, y) => {
+    const base = y * W
+    const kept = []
+
+    for (let x = 0; x < W; x++) {
+      if (marks[base + x] === 0) kept.push(row[x])
     }
-    return new_board
+
+    while (kept.length < W) kept.push(NULL_VALUE)
+    return kept
+  });
 }
 
-function get_block_count(board) {
-    let count = 0
-    for(let i = 0; i < board.length; i++) {
-        for(let j = 0; j < board[0].length; j++) {
-            if(board[i][j] !== NULL_VALUE) count++
-        }
-    }
-    return count
+function step(state) {
+  const { board, removedTotal } = state
+  const { marks, removedCount } = scanDeletions(board)
+
+  if (removedCount === 0) return null
+
+  const nextBoard = applyGravity(board, marks)
+  return {
+    board: nextBoard,
+    removedTotal: removedTotal + removedCount,
+  }
+}
+
+function run(initialState) {
+  let state = initialState
+  while (true) {
+    const next = step(state)
+    if (!next) return state
+    state = next
+  }
 }
 
 function solution(m, n, board) {
-    let new_board = rotate_board(board)
-    while(true) {
-        const scaned = scan_board_and_marking(new_board)
-        if(!scaned.deletable) break
-        new_board = remove(new_board, scaned.result)
-    }
-    return m * n - get_block_count(new_board)
+  const rotated = rotateBoard(board)
+  const finalState = run({ board: rotated, removedTotal: 0 })
+  return finalState.removedTotal
 }
